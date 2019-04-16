@@ -4,7 +4,7 @@ public class Contact {
 	private Integer userId; //FK
 	private Integer contactId; //PK
 	private String name;
-	private Integer phone;
+	private String phone;
 	private String email;
 	private String address;
 	private String remark;
@@ -38,10 +38,10 @@ public class Contact {
 	}
 	
 	
-	public Integer getPhone() {
+	public String getPhone() {
 		return phone;
 	}
-	public void setPhone(Integer phone) {
+	public void setPhone(String phone) {
 		this.phone = phone;
 	}
 	
