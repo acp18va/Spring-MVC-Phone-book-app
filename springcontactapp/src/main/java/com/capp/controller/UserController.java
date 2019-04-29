@@ -4,6 +4,7 @@ package com.capp.controller;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.capp.command.LoginCommand;
+import com.capp.command.UserCommand;
 import com.capp.domain.User;
 import com.capp.exception.UserBlockedException;
 import com.capp.service.UserService;
@@ -67,7 +69,13 @@ public class UserController {
 		}
 		
 	}
-		
+	@RequestMapping(value = "/logout")
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "redirect:index?act=lo"; // JSP - /WEB-INF/view/index.jsp
+	
+	}
+	
 	@RequestMapping(value = "/user/dashboard")
 	public String userDashboard() {
 		return "dashboard_user"; // JSP - /WEB-INF/view/index.jsp
@@ -80,6 +88,31 @@ public class UserController {
 	
 	}
 	
+	@RequestMapping(value = "/reg_form")
+	public String RegistrationForm(Model m) {
+		UserCommand cmd = new UserCommand();
+		m.addAttribute("command", cmd);
+		
+		return "reg_form";
+		
+	}
+	
+	@RequestMapping(value = "/register")
+	public String registerUser(@ModelAttribute("command") UserCommand cmd, Model m) {
+		try {
+			User user = cmd.getUser();
+			user.setRole(UserService.ROLE_USER);
+			user.setLoginStatus(UserService.LOGIN_STATUS_ACTIVE);
+			userService.register(user);
+			return "redirect:index?act=reg";
+		} catch (DuplicateKeyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			m.addAttribute("err", "Username is already registered. Please select another Username.");
+			return "reg_form";
+		}
+		
+	}
 	private void addUserInSession(User u, HttpSession session) {
 		session.setAttribute("user", "u");
 		session.setAttribute("userId", u.getUserid());
